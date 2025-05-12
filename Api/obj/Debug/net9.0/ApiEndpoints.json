@@ -1,0 +1,150 @@
+[
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "FindUserWithIDAsync",
+    "RelativePath": "Auth/FindUserWithID/{ID}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ID",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Domain.Dtos.AuthDtos.ApplicationUserDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "LoginUserWithUsernameOrEmailAsync",
+    "RelativePath": "Auth/Login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.LoginWithEmailOrUsernameDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "LoginUserWithPhoneNumberAsync",
+    "RelativePath": "Auth/Login-phone",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.LoginWithPhoneNumberDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "RegisterUser",
+    "RelativePath": "Auth/Register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.RegisterApplicationUserDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
+    "Method": "GetQuestionnaireByIdAsync",
+    "RelativePath": "Questionnaire/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Domain.Models.Questionnaire",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
+    "Method": "SubmitPatientPreferences",
+    "RelativePath": "Questionnaire/PatientPreferences",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "preferences",
+        "Type": "Domain.Dtos.QuestionnaireDtos.PreferencesPatientDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
+    "Method": "SubmitTherapistPreferences",
+    "RelativePath": "Questionnaire/TherapistPreferences",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "preferences",
+        "Type": "Domain.Dtos.QuestionnaireDtos.PreferencesTherapistDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Healthene.Controllers.WhatsappOtp",
+    "Method": "SendOtp",
+    "RelativePath": "WhatsappOtp/send-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
