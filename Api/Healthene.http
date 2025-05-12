@@ -1,0 +1,6 @@
+@Healthene_HostAddress = http://localhost:5135
+
+GET {{Healthene_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
