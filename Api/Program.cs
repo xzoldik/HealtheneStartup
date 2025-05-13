@@ -14,6 +14,8 @@ builder.Services.AddScoped<IAuthRepo, AuthRepo>();
 builder.Services.AddScoped<IQuestionnaireRepo, QuestionnaireRepo>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<QuestionnaireService>();
+builder.Services.AddScoped<ITherapist, TherapistRepo>();
+builder.Services.AddScoped<TherapistService>();
 
 
 

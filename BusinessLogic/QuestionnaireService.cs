@@ -43,7 +43,6 @@ namespace BusinessLogic
         {
             try
             {
-                
                 var result = await _questionnaireRepo.SaveTherapistPreferencesAsync(preferences);
                 return result; // Return true if successful
             }

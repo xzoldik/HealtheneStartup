@@ -132,6 +132,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Api.Controllers.TherapistController",
+    "Method": "AddAdditionalInformationTherapist",
+    "RelativePath": "Therapist/AddAdditionalInformationTherapist",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Domain.Dtos.TherapistDto.AdditionalInformationTherapistDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Healthene.Controllers.WhatsappOtp",
     "Method": "SendOtp",
     "RelativePath": "WhatsappOtp/send-otp",

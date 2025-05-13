@@ -1,4 +1,5 @@
-﻿using Domain.Dtos.QuestionnaireDtos;
+﻿using Domain.Dtos.MatchingSystemDtos;
+using Domain.Dtos.QuestionnaireDtos;
 using Domain.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace Domain.Interfaces
         Task<Questionnaire?> UpdateQuestionnaireAsync(Questionnaire questionnaire);
         Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences);
         Task<bool> SaveTherapistPreferencesAsync(PreferencesTherapistDto preferences);
-        //Task<List<TherapistDto> MatchTherapistsWithPatient(int patientId);
+        Task<List<TherapistDto>> MatchTherapistsWithPatient(int patientId);
         Task<bool> DeleteQuestionnaireAsync(int id);
         Task<bool> SaveChangesAsync();
     }

@@ -1,5 +1,5 @@
 ﻿using System.Data.SqlClient;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -9,15 +9,13 @@ using Microsoft.Data.SqlClient;
 using Domain.Globals;
 using Domain.Dtos.QuestionnaireDtos;
 using System.Data;
+using Domain.Dtos.MatchingSystemDtos;
 
 
 namespace DataAccess
 {
     public class QuestionnaireRepo : IQuestionnaireRepo
     {
-
-
-
         public Task<Questionnaire> CreateQuestionnaireAsync(Questionnaire questionnaire)
         {
             throw new NotImplementedException();
@@ -39,7 +37,7 @@ namespace DataAccess
             using (var connection = new SqlConnection(Connection.ConnectionString))
             {
                 await connection.OpenAsync();
-               
+
 
                 using (SqlCommand command = new SqlCommand("sp_GetQuestionnaireById", connection))
                 {
@@ -94,67 +92,72 @@ namespace DataAccess
             return questionnaire;
         }
 
+        public Task<List<TherapistDto>> MatchTherapistsWithPatient(int patientId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<bool> SaveChangesAsync()
         {
             throw new NotImplementedException();
         }
 
-            public async Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences)
+        public async Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences)
+        {
+            using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
+            using SqlCommand command = new SqlCommand("sp_SavePreferences", connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            command.Parameters.AddWithValue("@UserID", preferences.UserID);
+            command.Parameters.AddWithValue("@UserRole", preferences.UserRole);
+            command.Parameters.AddWithValue("@Gender", preferences.Gender);
+            command.Parameters.AddWithValue("@Religion", preferences.Religion);
+            command.Parameters.AddWithValue("@TreatingExperience", preferences.TreatingExperience ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Age", preferences.Age);
+            command.Parameters.AddWithValue("@MaritalStatus", preferences.MaritalStatus);
+            command.Parameters.AddWithValue("@ReligionImportance", preferences.ReligionImportance);
+            command.Parameters.AddWithValue("@PsychiatryTreatment", preferences.PsychiatryTreatment ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@TreatmentReason", preferences.TreatmentReason ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@PhysicalHealth", preferences.PhysicalHealth ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@FoodHabits", preferences.FoodHabits ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Depression", preferences.Depression ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Employment", preferences.Employment ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Intimacy", preferences.Intimacy ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Alcoholic", preferences.Alcoholic ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@Suicide", preferences.Suicide ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@PreferedLanguage", preferences.PreferedLanguage);
+            command.Parameters.AddWithValue("@PreferedGender", preferences.PreferedGender);
+            command.Parameters.AddWithValue("@ExpectationTherapist", preferences.ExpectationTherapist ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@DirectOrGentel", preferences.DirectOrGentel);
+            command.Parameters.AddWithValue("@StructuredOrFlexible", preferences.StructuredOrFlexible);
+            command.Parameters.AddWithValue("@OfficialOrCasual", preferences.OfficialOrCasual);
+
+            try
             {
-                using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-                using SqlCommand command = new SqlCommand("sp_SavePreferences", connection);
-                command.CommandType = CommandType.StoredProcedure;
-
-                command.Parameters.AddWithValue("@UserID", preferences.UserID);
-                command.Parameters.AddWithValue("@UserRole", preferences.UserRole);
-                command.Parameters.AddWithValue("@Gender", preferences.Gender);
-                command.Parameters.AddWithValue("@Religion", preferences.Religion);
-                command.Parameters.AddWithValue("@TreatingExperience", preferences.TreatingExperience ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Age", preferences.Age);
-                command.Parameters.AddWithValue("@MaritalStatus", preferences.MaritalStatus);
-                command.Parameters.AddWithValue("@ReligionImportance", preferences.ReligionImportance);
-                command.Parameters.AddWithValue("@PsychiatryTreatment", preferences.PsychiatryTreatment ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@TreatmentReason", preferences.TreatmentReason ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@PhysicalHealth", preferences.PhysicalHealth ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@FoodHabits", preferences.FoodHabits ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Depression", preferences.Depression ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Employment", preferences.Employment ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Intimacy", preferences.Intimacy ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Alcoholic", preferences.Alcoholic ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@Suicide", preferences.Suicide ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@PreferedLanguage", preferences.PreferedLanguage);
-                command.Parameters.AddWithValue("@PreferedGender", preferences.PreferedGender);
-                command.Parameters.AddWithValue("@ExpectationTherapist", preferences.ExpectationTherapist ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@DirectOrGentel", preferences.DirectOrGentel);
-                command.Parameters.AddWithValue("@StructuredOrFlexible", preferences.StructuredOrFlexible);
-                command.Parameters.AddWithValue("@OfficialOrCasual", preferences.OfficialOrCasual);
-
-                try
+                await connection.OpenAsync();
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (SqlException sqlEx)
+            {
+                // Log SQL-specific exceptions
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // Log general exceptions
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Open)
                 {
-                    await connection.OpenAsync();
-                    int rowsAffected = await command.ExecuteNonQueryAsync();
-                    return rowsAffected > 0;
-                }
-                catch (SqlException sqlEx)
-                {
-                    // Log SQL-specific exceptions
-                    Console.WriteLine($"SQL Error: {sqlEx.Message}");
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    // Log general exceptions
-                    Console.WriteLine($"Error: {ex.Message}");
-                    throw;
-                }
-                finally
-                {
-                    if (connection.State == ConnectionState.Open)
-                    {
-                        connection.Close();
-                    }
+                    connection.Close();
                 }
             }
+        }
 
         public async Task<bool> SaveTherapistPreferencesAsync(PreferencesTherapistDto preferences)
         {
