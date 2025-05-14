@@ -12,13 +12,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    public class SessionRepository:ISessionRepository
+    public class SessionRepository : ISessionRepository
 
     {
-
-        public SessionRepository(ISessionRepository sessionRepository) { 
-        }
-
         public async Task<(int sessionId, int returnCode, string errorMessage)> BookIndividualSessionAsync(SessionDTO session)
         {
             int newSessionId = -1;
@@ -89,5 +85,5 @@ namespace DataAccess.Repositories
     }
 
 
-    }
+}
 
