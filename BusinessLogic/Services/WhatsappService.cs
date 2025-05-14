@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogic.Whatsapp
+namespace BusinessLogic.Services
 {
     public static class WhatsappService
     {

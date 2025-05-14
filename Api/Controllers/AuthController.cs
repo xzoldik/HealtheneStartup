@@ -1,4 +1,4 @@
-﻿using BusinessLogic;
+﻿using BusinessLogic.Services;
 using Domain.Dtos.AuthDtos;
 using Domain.Interfaces;
 using Domain.Models;

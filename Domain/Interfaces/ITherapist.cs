@@ -10,10 +10,12 @@ namespace Domain.Interfaces
 {
     public interface ITherapist
     {
-        Task<bool> AddAddAdditionalInformationTherapist(AdditionalInformationTherapistDto request);
 
+        public Task<bool> AddAddAdditionalInformationTherapist(AdditionalInformationTherapistDto request);
+        public Task<Therapist> GetTherapistByTherapistId(int TherapistID);
+        public Task<Therapist> GetTherapistByUserId(int UserID);
 
-        Task<List<Therapist>> GetTop3PsychotherapistMatches(int PatientID);
+        public Task<List<Therapist>> GetTop3PsychotherapistMatches(int UserID);
 
     }
 }

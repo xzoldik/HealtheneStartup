@@ -4,7 +4,7 @@ using DataAccess;
 using Domain.Models;
 using Domain.Interfaces;
 using Domain.Dtos.QuestionnaireDtos;
-using BusinessLogic;
+using BusinessLogic.Services;
 
 
 namespace QuestionnaireApi.Controllers

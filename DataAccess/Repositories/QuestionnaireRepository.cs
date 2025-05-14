@@ -12,9 +12,9 @@ using System.Data;
 using Domain.Dtos.MatchingSystemDtos;
 
 
-namespace DataAccess
+namespace DataAccess.Repositories
 {
-    public class QuestionnaireRepo : IQuestionnaireRepo
+    public class QuestionnaireRepository : IQuestionnaireRepo
     {
         public Task<Questionnaire> CreateQuestionnaireAsync(Questionnaire questionnaire)
         {
@@ -39,9 +39,9 @@ namespace DataAccess
                 await connection.OpenAsync();
 
 
-                using (SqlCommand command = new SqlCommand("sp_GetQuestionnaireById", connection))
+                using (SqlCommand command = new SqlCommand("usp_GetQuestionnaireById", connection))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
                     command.Parameters.AddWithValue("@QuestionnaireID", id);
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
@@ -82,7 +82,7 @@ namespace DataAccess
                                     AnswerID = (int)reader["AnswerID"],
                                     QuestionID = (int)reader["QuestionID"],
                                     OptionText = reader["OptionText"].ToString()!,
-                                    Score = reader["Score"] == DBNull.Value ? (int?)null : (int)reader["Score"] // Use nullable int?
+                                    Score = reader["Score"] == DBNull.Value ? null : (int)reader["Score"] // Use nullable int?
                                 });
                             }
                         }
@@ -105,7 +105,7 @@ namespace DataAccess
         public async Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-            using SqlCommand command = new SqlCommand("sp_SavePreferences", connection);
+            using SqlCommand command = new SqlCommand("usp_SavePreferences", connection);
             command.CommandType = CommandType.StoredProcedure;
 
             command.Parameters.AddWithValue("@UserID", preferences.UserID);
@@ -162,7 +162,7 @@ namespace DataAccess
         public async Task<bool> SaveTherapistPreferencesAsync(PreferencesTherapistDto preferences)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-            using SqlCommand command = new SqlCommand("sp_SaveTherapistPreferences", connection);
+            using SqlCommand command = new SqlCommand("usp_SaveTherapistPreferences", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserID", preferences.UserID);
             command.Parameters.AddWithValue("@UserRole", preferences.UserRole);

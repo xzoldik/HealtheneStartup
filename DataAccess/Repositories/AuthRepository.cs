@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess
+namespace DataAccess.Repositories
 {
-    public class AuthRepo : IAuthRepo
+    public class AuthRepository : IAuthRepo
     {
         public Task<bool> CheckUserExistAsync(int userID)
         {
@@ -27,7 +27,7 @@ namespace DataAccess
         public async Task<ApplicationUserDto> FindUserWithIDAsync(string UserID) 
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-            using SqlCommand command = new SqlCommand("sp_FindUserWithID", connection);
+            using SqlCommand command = new SqlCommand("usp_FindUserWithID", connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserID", UserID);
             await connection.OpenAsync();
@@ -72,7 +72,7 @@ namespace DataAccess
         public async Task<int> LoginUserWithPhoneNumberAsync(LoginWithPhoneNumberDTO request)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-            using SqlCommand command = new SqlCommand("sp_LoginWithPhone", connection)
+            using SqlCommand command = new SqlCommand("usp_LoginWithPhone", connection)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -101,7 +101,7 @@ namespace DataAccess
             try
             {
                 using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-                using SqlCommand command = new SqlCommand("sp_LoginUserWithUsernameOrEmail", connection);
+                using SqlCommand command = new SqlCommand("usp_LoginUserWithUsernameOrEmail", connection);
                 command.CommandType = CommandType.StoredProcedure;
 
                 command.Parameters.AddWithValue("@LoginIdentifier", request.LoginIdentifier);
@@ -141,8 +141,8 @@ namespace DataAccess
         public async Task<int> RegisterUserAsync(RegisterApplicationUserDTO user)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
-            using SqlCommand command = new SqlCommand("sp_RegisterUserApplication", connection);
-            command.CommandType = System.Data.CommandType.StoredProcedure;
+            using SqlCommand command = new SqlCommand("usp_RegisterUserApplication", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@FirstName", user.FirstName);
             command.Parameters.AddWithValue("@LastName", user.LastName);
             command.Parameters.AddWithValue("@Email", user.Email);
@@ -154,8 +154,8 @@ namespace DataAccess
             command.Parameters.AddWithValue("@ProfilePicture", user.ProfilePicture);
 
             // Add return parameter
-            SqlParameter returnValue = new SqlParameter("@UserID", System.Data.SqlDbType.Int);
-            returnValue.Direction = System.Data.ParameterDirection.ReturnValue;
+            SqlParameter returnValue = new SqlParameter("@UserID", SqlDbType.Int);
+            returnValue.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(returnValue);
 
             await connection.OpenAsync();
