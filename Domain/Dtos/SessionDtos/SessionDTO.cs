@@ -14,7 +14,7 @@ namespace Domain.Dtos.SessionDtos
         [Required(ErrorMessage = "Patient ID is required.")]
         public int patientId { get; set; }
         [Required(ErrorMessage = "Scheduled start time is required.")]
-        DateTime scheduledStartTime { get; set; }
+        public DateTime scheduledStartTime { get; set; }
         [Required(ErrorMessage = "duration end time is required.")]
         public int duration { get; set; }
         [Required(ErrorMessage = "Session type is required.")]
