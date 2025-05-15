@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace Domain.Dtos.QuestionnaireDtos
 {
-    public class PreferencesPatientDto
+    public class AddPreferencesTherapistDto
     {
         [Required(ErrorMessage = "UserID is required")]
         public required int UserID { get; set; }
 
         [Required(ErrorMessage = "Role is required")]
-        [RegularExpression("^(patient)$", ErrorMessage = "Role must be patient")]
+        [RegularExpression("^(therapist)$", ErrorMessage = "Role must be therapist")]
         public required string UserRole { get; set; }
 
         [Required(ErrorMessage = "Gender is required")]
@@ -44,36 +44,12 @@ namespace Domain.Dtos.QuestionnaireDtos
         [RegularExpression("^(نعم|لا)$", ErrorMessage = "PsychiatryTreatment must be one of: نعم or لا")]
         public required string PsychiatryTreatment { get; set; }
 
-        [Required(ErrorMessage = "TreatmentReason is required")]
-        [RegularExpression("^(قلق|اكتئاب|ضغوط العمل|مزاجي يؤثر في عملي أو دراستي|أعاني في بناء علاقات جديدة أو الحفاظ على علاقاتي|لم أستطع ايجاد هدف أو معنى لحياتي|أنا حزين|لقد تعرضت لصدمة نفسية|أحتاج للاستشارة و التحدث حول تحدي جديد|أريد أن أكسب الثقة في نفسي|أريد أن أطور نفسي و لا أعرف من أين أبدأ|صديق لي رشح هذا التطبيق|فقط أكتشف|غيرها)$", ErrorMessage = "TreatmentReason is required and must be one of the provided options")]
-        public required string TreatmentReason { get; set; }
-
-        [Required(ErrorMessage = "PhysicalHealth is required")]
-        [RegularExpression("^(جيدة|متوسطة|سيئة)$", ErrorMessage = "PhysicalHealth must be one of: جيدة, متوسطة, or سيئة")]
-        public required string PhysicalHealth { get; set; }
-
-        [Required(ErrorMessage = "FoodHabits is required")]
-        [RegularExpression("^(جيدة|متوسطة|سيئة)$", ErrorMessage = "FoodHabits must be one of: جيدة, متوسطة, or سيئة")]
-        public required string FoodHabits { get; set; }
-
-        [Required(ErrorMessage = "Depression is required")]
-        [RegularExpression("^(نعم|لا)$", ErrorMessage = "Depression must be either نعم or لا")]
-        public required string Depression { get; set; }
-
-        [Required(ErrorMessage = "Employment is required")]
-        [RegularExpression("^(موظف|عاطل عن العمل)$", ErrorMessage = "Employment must be either موظف or عاطل عن العمل")]
-        public required string Employment { get; set; }
-
-        [Required(ErrorMessage = "Intimacy is required")]
-        [RegularExpression("^(نعم|لا)$", ErrorMessage = "Intimacy must be either نعم or لا")]
-        public required string Intimacy { get; set; }
-
         [Required(ErrorMessage = "Alcoholic is required")]
-        [RegularExpression("^(على الإطلاق|نادرا|شهريات|أسبوعيا|يوميا)$", ErrorMessage = "Alcoholic must be one of: على الإطلاق, نادرا, شهريات, أسبوعيا, or يوميا")]
+        [RegularExpression("^(نعم|لا)$", ErrorMessage = "Alcoholic must be either نعم or لا")]
         public required string Alcoholic { get; set; }
 
         [Required(ErrorMessage = "Suicide is required")]
-        [RegularExpression("^(أبدا|قبل سنة|قبل 3 أشهر|قبل شهرين|قبل أسوعبين|في الأيام القليلة الفائتة)$", ErrorMessage = "Suicide must be one of: أبدا, قبل سنة, قبل 3 أشهر, قبل شهرين, قبل أسوعبين, or في الأيام القليلة الفائتة")]
+        [RegularExpression("^(نعم|لا)$", ErrorMessage = "Suicide must be either نعم or لا")]
         public required string Suicide { get; set; }
 
         [Required(ErrorMessage = "PreferedLanguage is required")]
@@ -83,10 +59,6 @@ namespace Domain.Dtos.QuestionnaireDtos
         [Required(ErrorMessage = "PreferedGender is required")]
         [RegularExpression("^(رجل|امرأة)$", ErrorMessage = "PreferedGender must be either رجل or امرأة")]
         public required string PreferedGender { get; set; }
-
-        [Required(ErrorMessage = "ExpectationTherapist is required")]
-        [RegularExpression("^(يستمع لك|يكتشف ماضيك|يعلمك مهارة جديدة|يرشدني إلى تحقيق أهدافي|يتحقق من صحتي كل مرة)$", ErrorMessage = "ExpectationTherapist must be one of the provided options")]
-        public required string ExpectationTherapist { get; set; }
 
         [Required(ErrorMessage = "DirectOrGentel is required")]
         [RegularExpression("^(لطيف|لطيف إلى حد ما|لا تفضيل|مباشر إلى حد ما|مباشر)$", ErrorMessage = "DirectOrGentel must be one of: لطيف, لطيف إلى حد ما, لا تفضيل, مباشر إلى حد ما, or مباشر")]
@@ -100,4 +72,4 @@ namespace Domain.Dtos.QuestionnaireDtos
         [RegularExpression("^(معتاد|معتاد إلى حد ما|بدون تفضيل|رسمي إلى حد ما|رسمي)$", ErrorMessage = "OfficialOrCasual must be one of: معتاد, معتاد إلى حد ما, بدون تفضيل, رسمي إلى حد ما, or رسمي")]
         public required string OfficialOrCasual { get; set; }
     }
-}
+}   

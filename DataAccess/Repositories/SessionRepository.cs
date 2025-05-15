@@ -1,21 +1,15 @@
 ﻿using Domain.Dtos.SessionDtos;
 using Domain.Globals;
 using Domain.Interfaces;
-using Domain.Models;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
     public class SessionRepository : ISessionRepository
 
     {
-        public async Task<(int sessionId, int returnCode, string errorMessage)> BookIndividualSessionAsync(SessionDTO session)
+        public async Task<(int sessionId, int returnCode, string errorMessage)> BookIndividualSessionAsync(BookSessionDTO session)
         {
             int newSessionId = -1;
             int spReturnCode = -1; // Stored procedure's own return value
@@ -82,6 +76,52 @@ namespace DataAccess.Repositories
             return (newSessionId, spReturnCode, errorMessage);
         }
 
+        public async Task<IEnumerable<SessionDataModel>> GetSessionsByPatientIdAsync(int patientId)
+        {
+            List<SessionDataModel> sessions = new List<SessionDataModel>();
+            using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
+            {
+                using (SqlCommand command = new SqlCommand("dbo.usp_GetSessionsByPatientId", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PatientID", patientId);
+                    try
+                    {
+                        await connection.OpenAsync();
+                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                SessionDataModel session = new SessionDataModel
+                                {
+                                    SessionID = reader["SessionID"] as int? ?? 0, // Or handle DBNull explicitly
+                                    TherapistID = reader["TherapistID"] as int?,
+                                    TherapistFirstName = reader["TherapistFirstName"] as string,
+                                    TherapistLastName = reader["TherapistLastName"] as string,
+                                    PatientID = reader["PatientID"] as int?,
+                                    PatientFirstName = reader["PatientFirstName"] as string,
+                                    PatientLastName = reader["PatientLastName"] as string,
+                                    SessionType = reader["SessionType"] as string,
+                                    ScheduledStartTime = reader["ScheduledStartTime"] as DateTime? ?? DateTime.MinValue,
+                                    Duration = reader["Duration"] as int? ?? 0,
+                                    Status = reader["Status"] as string,
+                                    ActualStartTime = reader["ActualStartTime"] as DateTime?,
+                                    EndTime = reader["EndTime"] as DateTime?,
+                                    FeedbackID = reader["FeedbackID"] as int?,
+                                    Description = reader["Description"] as string
+                                };
+                                sessions.Add(session);
+                            }
+                        }
+                    }
+                    catch (SqlException ex)when(ex.Message.Contains("Patient not found"))
+                    {
+                        return null;
+                    }
+                }
+            }
+            return sessions;
+        }
     }
 
 

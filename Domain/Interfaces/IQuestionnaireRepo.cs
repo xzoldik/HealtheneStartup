@@ -12,8 +12,8 @@ namespace Domain.Interfaces
         Task<Questionnaire?> GetQuestionnaireByIdAsync(int id);
         Task<Questionnaire> CreateQuestionnaireAsync(Questionnaire questionnaire);
         Task<Questionnaire?> UpdateQuestionnaireAsync(Questionnaire questionnaire);
-        Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences);
-        Task<bool> SaveTherapistPreferencesAsync(PreferencesTherapistDto preferences);
+        Task<bool> SavePatientPreferencesAsync(AddPreferencesPatientDto preferences);
+        Task<bool> SaveTherapistPreferencesAsync(AddPreferencesTherapistDto preferences);
         Task<List<TherapistDto>> MatchTherapistsWithPatient(int patientId);
         Task<bool> DeleteQuestionnaireAsync(int id);
         Task<bool> SaveChangesAsync();

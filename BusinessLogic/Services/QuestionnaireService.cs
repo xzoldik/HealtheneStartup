@@ -29,7 +29,7 @@ namespace BusinessLogic.Services
                 return null;
             }
         }
-        public async Task<bool> SavePreferencesPatientAsync(PreferencesPatientDto preferences)
+        public async Task<bool> SavePreferencesPatientAsync(AddPreferencesPatientDto preferences)
         {
             if (preferences == null)
             {
@@ -39,7 +39,7 @@ namespace BusinessLogic.Services
             return result;
         }
 
-        public async Task<bool> SavePreferencesTherapistAsync(PreferencesTherapistDto preferences)
+        public async Task<bool> SavePreferencesTherapistAsync(AddPreferencesTherapistDto preferences)
         {
             try
             {

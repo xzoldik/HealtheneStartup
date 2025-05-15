@@ -18,7 +18,7 @@ namespace Healthene.Controllers
             _authService = authService;
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterApplicationUserDTO user)
         {
             if (user == null)
@@ -42,7 +42,7 @@ namespace Healthene.Controllers
             }
         }
 
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> LoginUserWithUsernameOrEmailAsync(LoginWithEmailOrUsernameDTO user)
         {
             if (user == null)
@@ -64,7 +64,7 @@ namespace Healthene.Controllers
             }
         }
 
-        [HttpPost("Login-phone")]
+        [HttpPost("login-phone")]
         public async Task<IActionResult> LoginUserWithPhoneNumberAsync(LoginWithPhoneNumberDTO user)
         {
             if (user == null)
@@ -85,7 +85,7 @@ namespace Healthene.Controllers
                 return Unauthorized(new { message = "Invalid phone or password." });
             }
         }
-        [HttpGet("FindUserWithID/{ID}")]
+        [HttpGet("user/{ID}")]
         public async Task<ActionResult<ApplicationUserDto>> FindUserWithIDAsync(string ID)
         {
             if (string.IsNullOrEmpty(ID))

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Dtos.SessionDtos
 {
-    public class SessionDTO
+    public class BookSessionDTO
     {
         [Required(ErrorMessage = "Session ID is required.")]
         public int therapistId { get; set; }

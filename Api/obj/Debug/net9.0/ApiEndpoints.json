@@ -1,8 +1,82 @@
 [
   {
+    "ContainingType": "Api.Controllers.SessionsController",
+    "Method": "BookSessionResultDTOBookIndividualSessionAsync",
+    "RelativePath": "api/Sessions/book",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Domain.Dtos.SessionDtos.BookSessionDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "Domain.Dtos.SessionDtos.BookSessionResultDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "LoginUserWithUsernameOrEmailAsync",
+    "RelativePath": "Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.LoginWithEmailOrUsernameDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "LoginUserWithPhoneNumberAsync",
+    "RelativePath": "Auth/login-phone",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.LoginWithPhoneNumberDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Healthene.Controllers.AuthController",
+    "Method": "RegisterUser",
+    "RelativePath": "Auth/register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "user",
+        "Type": "Domain.Dtos.AuthDtos.RegisterApplicationUserDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Healthene.Controllers.AuthController",
     "Method": "FindUserWithIDAsync",
-    "RelativePath": "Auth/FindUserWithID/{ID}",
+    "RelativePath": "Auth/user/{ID}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -24,54 +98,6 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "Healthene.Controllers.AuthController",
-    "Method": "LoginUserWithUsernameOrEmailAsync",
-    "RelativePath": "Auth/Login",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "user",
-        "Type": "Domain.Dtos.AuthDtos.LoginWithEmailOrUsernameDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Healthene.Controllers.AuthController",
-    "Method": "LoginUserWithPhoneNumberAsync",
-    "RelativePath": "Auth/Login-phone",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "user",
-        "Type": "Domain.Dtos.AuthDtos.LoginWithPhoneNumberDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Healthene.Controllers.AuthController",
-    "Method": "RegisterUser",
-    "RelativePath": "Auth/Register",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "user",
-        "Type": "Domain.Dtos.AuthDtos.RegisterApplicationUserDTO",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   },
   {
     "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
@@ -102,14 +128,14 @@
   {
     "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
     "Method": "SubmitPatientPreferences",
-    "RelativePath": "Questionnaire/PatientPreferences",
+    "RelativePath": "Questionnaire/patient-preferences",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "preferences",
-        "Type": "Domain.Dtos.QuestionnaireDtos.PreferencesPatientDto",
+        "Type": "Domain.Dtos.QuestionnaireDtos.AddPreferencesPatientDto",
         "IsRequired": true
       }
     ],
@@ -118,39 +144,23 @@
   {
     "ContainingType": "QuestionnaireApi.Controllers.QuestionnaireController",
     "Method": "SubmitTherapistPreferences",
-    "RelativePath": "Questionnaire/TherapistPreferences",
+    "RelativePath": "Questionnaire/therapist-preferences",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "preferences",
-        "Type": "Domain.Dtos.QuestionnaireDtos.PreferencesTherapistDto",
+        "Type": "Domain.Dtos.QuestionnaireDtos.AddPreferencesTherapistDto",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "Api.Controllers.TherapistController",
-    "Method": "AddAdditionalInformationTherapist",
-    "RelativePath": "Therapist/AddAdditionalInformationTherapist",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "Domain.Dtos.TherapistDto.AdditionalInformationTherapistDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Api.Controllers.TherapistController",
+    "ContainingType": "Api.Controllers.therapistController",
     "Method": "GetTherapistByTherapistId",
-    "RelativePath": "Therapist/GetTherapistByTherapistId/{TherapistID}",
+    "RelativePath": "therapist/{TherapistID}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -174,9 +184,51 @@
     ]
   },
   {
-    "ContainingType": "Api.Controllers.TherapistController",
+    "ContainingType": "Api.Controllers.therapistController",
+    "Method": "AddAdditionalInformationTherapist",
+    "RelativePath": "therapist/additional-informations",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Domain.Dtos.TherapistDto.AdditionalInformationTherapistDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Api.Controllers.therapistController",
+    "Method": "GetTop3PsychotherapistMatches",
+    "RelativePath": "therapist/recommendations/{UserID}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "UserID",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[Domain.Models.Therapist, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "Api.Controllers.therapistController",
     "Method": "GetTherapistByUserId",
-    "RelativePath": "Therapist/GetTherapistByUserId/{UserID}",
+    "RelativePath": "therapist/users/{UserID}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -190,32 +242,6 @@
     "ReturnTypes": [
       {
         "Type": "Domain.Models.Therapist",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "Api.Controllers.TherapistController",
-    "Method": "GetTop3PsychotherapistMatches",
-    "RelativePath": "Therapist/GetTop3PsychotherapistMatches/{UserID}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "UserID",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.List\u00601[[Domain.Models.Therapist, Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",

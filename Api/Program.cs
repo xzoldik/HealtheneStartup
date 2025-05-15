@@ -17,6 +17,7 @@ builder.Services.AddScoped<QuestionnaireService>();
 builder.Services.AddScoped<ITherapist, TherapistRepository>();
 builder.Services.AddScoped<TherapistService>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<SessionService>();
 
 
 

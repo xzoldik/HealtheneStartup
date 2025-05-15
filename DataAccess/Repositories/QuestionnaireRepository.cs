@@ -102,7 +102,7 @@ namespace DataAccess.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<bool> SavePatientPreferencesAsync(PreferencesPatientDto preferences)
+        public async Task<bool> SavePatientPreferencesAsync(AddPreferencesPatientDto preferences)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
             using SqlCommand command = new SqlCommand("usp_SavePreferences", connection);
@@ -159,7 +159,7 @@ namespace DataAccess.Repositories
             }
         }
 
-        public async Task<bool> SaveTherapistPreferencesAsync(PreferencesTherapistDto preferences)
+        public async Task<bool> SaveTherapistPreferencesAsync(AddPreferencesTherapistDto preferences)
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
             using SqlCommand command = new SqlCommand("usp_SaveTherapistPreferences", connection);

@@ -11,6 +11,6 @@ namespace Domain.Models
         public int QuestionnaireID { get; set; }
         public required string QuestionnaireTitle { get; set; }
         public required string QuestionnaireDescription { get; set; }
-        public required List<Question> Questions { get; set; }
+        public required  List<Question> Questions { get; set; }
     }
 }

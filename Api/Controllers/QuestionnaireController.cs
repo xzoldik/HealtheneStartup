@@ -34,8 +34,8 @@ namespace QuestionnaireApi.Controllers
         }
 
 
-        [HttpPost("PatientPreferences")]
-        public async Task<IActionResult> SubmitPatientPreferences([FromBody] PreferencesPatientDto preferences)
+        [HttpPost("patient-preferences")]
+        public async Task<IActionResult> SubmitPatientPreferences([FromBody] AddPreferencesPatientDto preferences)
         {
             if (!ModelState.IsValid)
             {
@@ -61,8 +61,8 @@ namespace QuestionnaireApi.Controllers
                 return StatusCode(500, new { message = "An error occurred while saving preferences.", error = ex.Message });
             }
         }
-        [HttpPost("TherapistPreferences")]
-        public async Task<IActionResult> SubmitTherapistPreferences([FromBody] PreferencesTherapistDto preferences)
+        [HttpPost("therapist-preferences")]
+        public async Task<IActionResult> SubmitTherapistPreferences([FromBody] AddPreferencesTherapistDto preferences)
         {
             if (!ModelState.IsValid)
             {
