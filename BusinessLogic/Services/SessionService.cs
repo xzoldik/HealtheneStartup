@@ -39,5 +39,94 @@ namespace BusinessLogic.Services
                 return new BookSessionResultDTO { Success = false, Message = friendlyMessage, ErrorCode = returnCode.ToString() };
             }
         }
+        public async Task<GetSessionsByRoleID> GetSessionsByPatientIdAsync(int patientId)
+        {
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByPatientIdAsync(patientId,null);
+            if (result.returnCode == 0)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
+            }
+            else if (result.returnCode == -1)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else if (result.returnCode == -2)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else
+            {
+                return new GetSessionsByRoleID {returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+        }
+        public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdAsync(int therapistID)
+        {
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByTherapistIdAsync(therapistID,null);
+            if (result.returnCode == 0)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
+            }
+            else if (result.returnCode == -1)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else if (result.returnCode == -2)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+
+        }
+        public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdFilteredByStatusAsync(int therapistID,string? status)
+        {
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByTherapistIdAsync(therapistID, status);
+            if (result.returnCode == 0)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
+            }
+            else if (result.returnCode == -1)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else if (result.returnCode == -2)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+        }
+        public async Task<GetSessionsByRoleID> GetSessionsByPatientIdFilteredByStatusAsync(int patientID, string? status)
+        {
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByPatientIdAsync(patientID, status);
+            if (result.returnCode == 0)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
+            }
+            else if (result.returnCode == -1)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else if (result.returnCode == -2)
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+            else
+            {
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
+            }
+        }
+
+
+
+
+
+
+
+
     }
 }

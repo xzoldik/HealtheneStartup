@@ -75,55 +75,220 @@ namespace DataAccess.Repositories
             }
             return (newSessionId, spReturnCode, errorMessage);
         }
-
-        public async Task<IEnumerable<SessionDataModel>> GetSessionsByPatientIdAsync(int patientId)
+        public async Task<GetSessionsByRoleID> GetSessionsByPatientIdAsync(int patientId, string? status)
         {
-            List<SessionDataModel> sessions = new List<SessionDataModel>();
+            var sessions = new List<SessionDataModel>();
+            int returnCode = 0;
+            string errorMessage = "Success";
+
             using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
+            using (SqlCommand command = new SqlCommand("dbo.usp_GetSessionsByPatientId", connection))
             {
-                using (SqlCommand command = new SqlCommand("dbo.usp_GetSessionsByPatientId", connection))
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@PatientID", patientId);
+                command.Parameters.AddWithValue("@status", (object?)status ?? DBNull.Value);
+
+                // Prepare to capture the return value
+                var returnValueParam = new SqlParameter("@ReturnValue", SqlDbType.Int)
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@PatientID", patientId);
-                    try
+                    Direction = ParameterDirection.ReturnValue
+                };
+                command.Parameters.Add(returnValueParam);
+
+                try
+                {
+                    await connection.OpenAsync();
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        await connection.OpenAsync();
-                        using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            sessions.Add(new SessionDataModel
                             {
-                                SessionDataModel session = new SessionDataModel
-                                {
-                                    SessionID = reader["SessionID"] as int? ?? 0, // Or handle DBNull explicitly
-                                    TherapistID = reader["TherapistID"] as int?,
-                                    TherapistFirstName = reader["TherapistFirstName"] as string,
-                                    TherapistLastName = reader["TherapistLastName"] as string,
-                                    PatientID = reader["PatientID"] as int?,
-                                    PatientFirstName = reader["PatientFirstName"] as string,
-                                    PatientLastName = reader["PatientLastName"] as string,
-                                    SessionType = reader["SessionType"] as string,
-                                    ScheduledStartTime = reader["ScheduledStartTime"] as DateTime? ?? DateTime.MinValue,
-                                    Duration = reader["Duration"] as int? ?? 0,
-                                    Status = reader["Status"] as string,
-                                    ActualStartTime = reader["ActualStartTime"] as DateTime?,
-                                    EndTime = reader["EndTime"] as DateTime?,
-                                    FeedbackID = reader["FeedbackID"] as int?,
-                                    Description = reader["Description"] as string
-                                };
-                                sessions.Add(session);
-                            }
+                                SessionID = reader.GetInt32(reader.GetOrdinal("SessionID")),
+                                TherapistID = reader.GetInt32(reader.GetOrdinal("TherapistID")),
+                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                TherapistFirstName = reader.GetString(reader.GetOrdinal("TherapistFirstName")),
+                                TherapistLastName = reader.GetString(reader.GetOrdinal("TherapistLastName")),
+                                PatientFirstName = reader.GetString(reader.GetOrdinal("PatientFirstName")),
+                                PatientLastName = reader.GetString(reader.GetOrdinal("PatientLastName")),
+                                SessionType = reader.GetString(reader.GetOrdinal("SessionType")),
+                                ScheduledStartTime = reader.GetDateTime(reader.GetOrdinal("ScheduledStartTime")),
+                                Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                ActualStartTime = reader.IsDBNull(reader.GetOrdinal("ActualStartTime")) ? null : reader.GetDateTime(reader.GetOrdinal("ActualStartTime")),
+                                FeedbackID = reader.IsDBNull(reader.GetOrdinal("FeedbackID")) ? null : reader.GetInt32(reader.GetOrdinal("FeedbackID")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+                            });
                         }
                     }
-                    catch (SqlException ex)when(ex.Message.Contains("Patient not found"))
+
+                    // Get the return value from the stored procedure
+                    returnCode = (int)(returnValueParam.Value ?? 0);
+
+                    if (returnCode == 0)
                     {
-                        return null;
+                        if (sessions.Count == 0)
+                        {
+                            // Patient exists but has no sessions
+                            errorMessage = "No sessions found for this patient.";
+                            returnCode = -2;
+                            return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                        }
+                        else
+                        {
+                            errorMessage = "Success";
+                            return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = sessions };
+                        }
+                    }
+                    else if (returnCode == -1)
+                    {
+                        errorMessage = "Patient not found.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                    }
+                    else if (returnCode == -2)
+                    {
+                        errorMessage = "No sessions found for this patient.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                    }
+                    else
+                    {
+                        errorMessage = "Unknown error occurred.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
                     }
                 }
+                catch (SqlException ex)
+                {
+                    // Map known error messages to return codes
+                    if (ex.Message.Contains("Patient not found"))
+                    {
+                        returnCode = -1;
+                        errorMessage = "Patient not found.";
+                    }
+                    else if (ex.Message.Contains("No sessions found"))
+                    {
+                        returnCode = -2;
+                        errorMessage = "No sessions found for this patient.";
+                    }
+                    else
+                    {
+                        returnCode = -99;
+                        errorMessage = "Database error: " + ex.Message;
+                    }
+                    return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                }
+                catch (Exception ex)
+                {
+                    return new GetSessionsByRoleID { returnCode = -99, returnMessage = $"{ex.Message}", sessions = null };
+                }
             }
-            return sessions;
+        }
+        public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdAsync(int therapistID, string? status)
+        {
+            var sessions = new List<SessionDataModel>();
+            int returnCode = 0;
+            string errorMessage = "Success";
+
+            using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
+            using (SqlCommand command = new SqlCommand("dbo.usp_GetSessionsByTherapistID", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@TherapistID", therapistID);
+                command.Parameters.AddWithValue("@status", (object?)status ?? DBNull.Value);
+
+                // Prepare to capture the return value
+                var returnValueParam = new SqlParameter("@ReturnValue", SqlDbType.Int)
+                {
+                    Direction = ParameterDirection.ReturnValue
+                };
+                command.Parameters.Add(returnValueParam);
+
+                try
+                {
+                    await connection.OpenAsync();
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            sessions.Add(new SessionDataModel
+                            {
+                                SessionID = reader.GetInt32(reader.GetOrdinal("SessionID")),
+                                TherapistID = reader.GetInt32(reader.GetOrdinal("TherapistID")),
+                                PatientID = reader.GetInt32(reader.GetOrdinal("PatientID")),
+                                TherapistFirstName = reader.GetString(reader.GetOrdinal("TherapistFirstName")),
+                                TherapistLastName = reader.GetString(reader.GetOrdinal("TherapistLastName")),
+                                PatientFirstName = reader.GetString(reader.GetOrdinal("PatientFirstName")),
+                                PatientLastName = reader.GetString(reader.GetOrdinal("PatientLastName")),
+                                SessionType = reader.GetString(reader.GetOrdinal("SessionType")),
+                                ScheduledStartTime = reader.GetDateTime(reader.GetOrdinal("ScheduledStartTime")),
+                                Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
+                                Status = reader.GetString(reader.GetOrdinal("Status")),
+                                ActualStartTime = reader.IsDBNull(reader.GetOrdinal("ActualStartTime")) ? null : reader.GetDateTime(reader.GetOrdinal("ActualStartTime")),
+                                FeedbackID = reader.IsDBNull(reader.GetOrdinal("FeedbackID")) ? null : reader.GetInt32(reader.GetOrdinal("FeedbackID")),
+                                Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
+                            });
+                        }
+                    }
+
+                    // Get the return value from the stored procedure
+                    returnCode = (int)(returnValueParam.Value ?? 0);
+
+                    if (returnCode == 0)
+                    {
+                        if (sessions.Count == 0)
+                        {
+                            // Patient exists but has no sessions
+                            errorMessage = "No sessions found for this therapist.";
+                            returnCode = -2;
+                            return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                        }
+                        else
+                        {
+                            errorMessage = "Success";
+                            return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = sessions };
+                        }
+                    }
+                    else if (returnCode == -1)
+                    {
+                        errorMessage = "therapist not found.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                    }
+                    else if (returnCode == -2)
+                    {
+                        errorMessage = "No sessions found for this therapist.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                    }
+                    else
+                    {
+                        errorMessage = "Unknown error occurred.";
+                        return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                    }
+                }
+                catch (SqlException ex)
+                {
+                    // Map known error messages to return codes
+                    if (ex.Message.Contains("therapist not found"))
+                    {
+                        returnCode = -1;
+                        errorMessage = "therapist not found.";
+                    }
+                    else if (ex.Message.Contains("No sessions found"))
+                    {
+                        returnCode = -2;
+                        errorMessage = "No sessions found for this therapist.";
+                    }
+                    else
+                    {
+                        returnCode = -99;
+                        errorMessage = "Database error: " + ex.Message;
+                    }
+                    return new GetSessionsByRoleID { returnCode = returnCode, returnMessage = errorMessage, sessions = null };
+                }
+                catch (Exception ex)
+                {
+                    return new GetSessionsByRoleID { returnCode = -99, returnMessage = $"{ex.Message}", sessions = null };
+                }
+            }
         }
     }
-
-
 }
 

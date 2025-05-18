@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SessionsController : ControllerBase
     {
@@ -14,7 +14,7 @@ namespace Api.Controllers
             _sessionService = sessionService;
         }
         [HttpPost("book")]
-        public async Task<ActionResult<BookSessionResultDTO>> BookSessionResultDTOBookIndividualSessionAsync(BookSessionDTO request)
+        public async Task<ActionResult<BookSessionResultDTO>> BookIndividualSessionAsync(BookSessionDTO request)
         {
             if(!ModelState.IsValid)
             {
@@ -34,5 +34,116 @@ namespace Api.Controllers
                 return BadRequest(new { message = result.Message });
             }
         }
+        [HttpGet("patient/{patientId}")]
+        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByPatientIdAsync(int patientId)
+        {
+            if (patientId <= 0)
+            {
+                return BadRequest("Invalid Patient ID.");
+            }
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByPatientIdAsync(patientId);
+            if (result.returnCode == 0)
+            {
+                return Ok(result);
+            }
+            else if (result.returnCode == -1)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+            else if (result.returnCode == -2)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+
+            else
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+        }
+        [HttpGet("patient/{patientId}/{status}")]
+        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByPatientIdFilteredByStatusAsync(int patientId,string status)
+        {
+            if (patientId <= 0)
+            {
+                return BadRequest("Invalid Patient ID.");
+            }
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByPatientIdFilteredByStatusAsync(patientId,status);
+            if (result.returnCode == 0)
+            {
+                return Ok(result);
+            }
+            else if (result.returnCode == -1)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+            else if (result.returnCode == -2)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+
+            else
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+        }
+        [HttpGet("therapist/{therapistID}")]
+        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByTherapistIdAsync(int therapistID)
+        {
+            if (therapistID <= 0)
+            {
+                return BadRequest("Invalid Patient ID.");
+            }
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByTherapistIdAsync(therapistID);
+            if (result.returnCode == 0)
+            {
+                return Ok(result);
+            }
+            else if (result.returnCode == -1)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+            else if (result.returnCode == -2)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+
+            else
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+        }
+
+        [HttpGet("therapist/{therapistID}/{status}")]
+
+        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByTherapistIdFilteredByStatusAsync(int therapistID, string status)
+        {
+            if (therapistID <= 0)
+            {
+                return BadRequest("Invalid therapist ID.");
+            }
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByTherapistIdFilteredByStatusAsync(therapistID,status);
+            if (result.returnCode == 0)
+            {
+                return Ok(result);
+            }
+            else if (result.returnCode == -1)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+            else if (result.returnCode == -2)
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+
+            else
+            {
+                return NotFound(new { message = result.returnMessage });
+            }
+        }
+
+
+
+
+
     }
 }
