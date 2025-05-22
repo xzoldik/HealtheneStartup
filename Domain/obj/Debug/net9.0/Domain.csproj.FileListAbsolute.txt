@@ -21,3 +21,4 @@ C:\Users\windows\source\repos\Healthene\Domain\obj\Debug\net9.0\Domain.dll
 C:\Users\windows\source\repos\Healthene\Domain\obj\Debug\net9.0\refint\Domain.dll
 C:\Users\windows\source\repos\Healthene\Domain\obj\Debug\net9.0\Domain.pdb
 C:\Users\windows\source\repos\Healthene\Domain\obj\Debug\net9.0\ref\Domain.dll
+C:\Users\windows\source\repos\Healthene\Domain\obj\Debug\net9.0\Domain.csproj.AssemblyReference.cache

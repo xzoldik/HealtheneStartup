@@ -1,6 +1,11 @@
 ﻿using BusinessLogic.Services;
+using Domain.Dtos.GroupSessionDtos;
 using Domain.Dtos.SessionDtos;
+using Domain.Globals;
+using Domain.Models;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Api.Controllers
 {
@@ -9,14 +14,17 @@ namespace Api.Controllers
     public class SessionsController : ControllerBase
     {
         private readonly SessionService _sessionService;
+        private readonly GroupSessionService _groupSessionService;
 
-        public SessionsController(SessionService sessionService) {
+        public SessionsController(SessionService sessionService, GroupSessionService groupSessionService)
+        {
             _sessionService = sessionService;
+            _groupSessionService = groupSessionService;
         }
         [HttpPost("book")]
         public async Task<ActionResult<BookSessionResultDTO>> BookIndividualSessionAsync(BookSessionDTO request)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -27,7 +35,7 @@ namespace Api.Controllers
             }
             else
             {
-                if (result.ErrorCode == "-4" || result.ErrorCode == "-5")
+                if (result.ErrorCode == -4 || result.ErrorCode == -5)
                 {
                     return Conflict(new { message = result.Message });
                 }
@@ -61,13 +69,13 @@ namespace Api.Controllers
             }
         }
         [HttpGet("patient/{patientId}/{status}")]
-        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByPatientIdFilteredByStatusAsync(int patientId,string status)
+        public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByPatientIdFilteredByStatusAsync(int patientId, string status)
         {
             if (patientId <= 0)
             {
                 return BadRequest("Invalid Patient ID.");
             }
-            GetSessionsByRoleID result = await _sessionService.GetSessionsByPatientIdFilteredByStatusAsync(patientId,status);
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByPatientIdFilteredByStatusAsync(patientId, status);
             if (result.returnCode == 0)
             {
                 return Ok(result);
@@ -121,7 +129,7 @@ namespace Api.Controllers
             {
                 return BadRequest("Invalid therapist ID.");
             }
-            GetSessionsByRoleID result = await _sessionService.GetSessionsByTherapistIdFilteredByStatusAsync(therapistID,status);
+            GetSessionsByRoleID result = await _sessionService.GetSessionsByTherapistIdFilteredByStatusAsync(therapistID, status);
             if (result.returnCode == 0)
             {
                 return Ok(result);
@@ -141,8 +149,198 @@ namespace Api.Controllers
             }
         }
 
+        [HttpPost("book-group")]
+        public async Task<ActionResult<BookSessionResultDTO>> BookGroupSessionAsync(BookGroupSessionDto sessionRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            BookSessionResultDTO bookSessionResultDTO = await _groupSessionService.BookGroupSessionAsync(sessionRequest);
+
+            if (bookSessionResultDTO.Success && bookSessionResultDTO.SessionId != -1)
+            {
+                return Ok(bookSessionResultDTO.SessionId);
+            }
+            else if (bookSessionResultDTO.ErrorCode == -1)
+            {
+
+                return BadRequest(bookSessionResultDTO.Message);
+            }
+            else if (bookSessionResultDTO.ErrorCode == -2)
+            {
+                return NotFound(bookSessionResultDTO.Message);
+            }
+            else if (bookSessionResultDTO.ErrorCode == -4)
+            {
+                return Conflict(bookSessionResultDTO.Message);
+            }
+            else
+            {
+                return StatusCode(500, new { message = bookSessionResultDTO.Message });
+            }
 
 
+        }
+
+        [HttpPost("/{patientID}/join-group/{sessionID}")]
+        public async Task<ActionResult<JoinGroupSessionDto>> JoinGroupSession(int patientID, int sessionID)
+
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (patientID <= 0 || sessionID <= 0)
+            {
+                return BadRequest("Invalid Patient ID or Session ID.");
+            }
+            JoinGroupSessionDto result = await _groupSessionService.JoinGroupSession(patientID, sessionID);
+            if (result.returncode == 0)
+            {
+                return Ok(result.message);
+            }
+            else if (result.returncode == -1)
+            {
+                return BadRequest(new { message = result.message });
+            }
+            else if (result.returncode == -2 || result.returncode == -3)
+            {
+                return NotFound(new { message = result.message });
+            }
+            else if (result.returncode == -4 || result.returncode == -5 || result.returncode == -6 || result.returncode == -7)
+            {
+                return Conflict(new { message = result.message });
+            }
+            else
+            {
+                return StatusCode(500, new { message = result.message });
+            }
+        }
+        [HttpGet("group/{sessionId}")]
+        public async Task<ActionResult<GroupSession>> GetGroupSessionByIdAsync(int sessionId, string? status)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            // Basic validation for input ID
+            if (sessionId <= 0)
+            {
+                return BadRequest(new { message = "Invalid session ID." });
+            }
+
+            // Call the service layer, which now returns a ServiceResult
+            ServiceResult<GroupSession> result = await _groupSessionService.GetGroupSessionByIdAsync(sessionId, status);
+
+            if (result.IsSuccess)
+            {
+                // If successful, return the data with OK (200) status
+                return Ok(result.Data);
+            }
+            else
+            {
+                // Handle different error codes from the service/repository
+                switch (result.ErrorCode)
+                {
+                    case 1: // Invalid Session ID (from service validation)
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 2: // Group session not found (from SP or repository)
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 3: // Group session not found (from SP or repository)
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 99: // General database error
+                        return StatusCode(500, new { message = $"Database error: {result.ErrorMessage}" });
+                    case 100: // Unexpected internal error
+                        return StatusCode(500, new { message = $"An unexpected error occurred: {result.ErrorMessage}" });
+                    default: // Catch-all for any other unhandled errors
+                        return StatusCode(500, new { message = "An unknown error occurred while retrieving the group session." });
+                }
+            }
+        }
+        [HttpGet("group/patient/{patientId}")]
+        public async Task<ActionResult<List<GroupSession>>> GetGroupSessionsByPatientIdAsync(int patientId, [FromQuery] string? status = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+
+            var result = await _groupSessionService.GetGroupSessionsByPatientIdAsync(patientId, status);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                switch (result.ErrorCode)
+                {
+                    case 1:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 2:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 3:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 4:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 99:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+
+                    default:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+                }
+            }
+        }
+        [HttpGet("group/therapist/{therapistId}")]
+        public async Task<ActionResult<List<GroupSession>>> GetGroupSessionsByTherapistIdAsync(int therapistId, [FromQuery] string? status = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _groupSessionService.GetGroupSessionsByTherapistIdAsync(therapistId, status);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                switch (result.ErrorCode)
+                {
+                    case 1:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 2:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 3:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 4:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 99:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+                    default:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+                }
+            }
+        }
 
 
     }

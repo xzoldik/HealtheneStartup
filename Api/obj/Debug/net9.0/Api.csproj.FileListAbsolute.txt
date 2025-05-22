@@ -145,12 +145,6 @@ C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\scopedcss\bundle\Ap
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.development.json
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.build.endpoints.json
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets\msbuild.Api.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets\msbuild.Api.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets\msbuild.build.Api.props
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.Api.props
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.Api.props
-C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.pack.json
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\Api.csproj.Up2Date
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\Api.dll
@@ -158,3 +152,4 @@ C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\refint\Api.dll
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\Api.pdb
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\Api.genruntimeconfig.cache
 C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\ref\Api.dll
+C:\Users\windows\source\repos\Healthene\Api\obj\Debug\net9.0\staticwebassets.build.json.cache

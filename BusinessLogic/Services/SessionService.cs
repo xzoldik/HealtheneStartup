@@ -36,7 +36,7 @@ namespace BusinessLogic.Services
                 {
                     friendlyMessage = $"An error occurred: {dbErrorMessage}"; 
                 }
-                return new BookSessionResultDTO { Success = false, Message = friendlyMessage, ErrorCode = returnCode.ToString() };
+                return new BookSessionResultDTO { Success = false, Message = friendlyMessage, ErrorCode = returnCode };
             }
         }
         public async Task<GetSessionsByRoleID> GetSessionsByPatientIdAsync(int patientId)
@@ -120,6 +120,7 @@ namespace BusinessLogic.Services
                 return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
             }
         }
+
 
 
 

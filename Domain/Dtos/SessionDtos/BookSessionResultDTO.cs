@@ -4,8 +4,8 @@
     {
         public bool Success { get; set; }
         public int? SessionId { get; set; }
-        public string Message { get; set; }
-        public string ErrorCode { get; set; } // Optional: for client-side logic
+        public string Message { get; set; } = string.Empty;
+        public int ErrorCode { get; set; } 
     }
 }
 
