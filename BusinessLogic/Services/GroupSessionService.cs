@@ -125,5 +125,9 @@ namespace BusinessLogic.Services
         {
             return await _groupSessionRepository.GetGroupSessionsByTherapistIdAsync(therapistId, status);
         }
+        public async Task<ServiceResult<bool>> ChangeGroupSessionStatusAsync(int sessionId, string status)
+        {
+            return await _groupSessionRepository.ChangeGroupSessionStatusAsync(sessionId, status);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DataAccess.Repositories;
 using Domain.Dtos.SessionDtos;
+using Domain.Globals;
 using Domain.Interfaces;
 
 namespace BusinessLogic.Services
@@ -17,7 +18,7 @@ namespace BusinessLogic.Services
         {
             var (sessionId, returnCode, dbErrorMessage) = await _SessionRepository.BookIndividualSessionAsync(session);
 
-            if (sessionId > 0 && returnCode == 0) 
+            if (sessionId > 0 && returnCode == 0)
             {
                 return new BookSessionResultDTO { Success = true, SessionId = sessionId, Message = "Session booked successfully." };
             }
@@ -34,14 +35,14 @@ namespace BusinessLogic.Services
                 }
                 else if (!string.IsNullOrEmpty(dbErrorMessage))
                 {
-                    friendlyMessage = $"An error occurred: {dbErrorMessage}"; 
+                    friendlyMessage = $"An error occurred: {dbErrorMessage}";
                 }
                 return new BookSessionResultDTO { Success = false, Message = friendlyMessage, ErrorCode = returnCode };
             }
         }
         public async Task<GetSessionsByRoleID> GetSessionsByPatientIdAsync(int patientId)
         {
-            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByPatientIdAsync(patientId,null);
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByPatientIdAsync(patientId, null);
             if (result.returnCode == 0)
             {
                 return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
@@ -56,12 +57,12 @@ namespace BusinessLogic.Services
             }
             else
             {
-                return new GetSessionsByRoleID {returnCode = result.returnCode, returnMessage = result.returnMessage };
+                return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
             }
         }
         public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdAsync(int therapistID)
         {
-            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByTherapistIdAsync(therapistID,null);
+            GetSessionsByRoleID result = await _SessionRepository.GetSessionsByTherapistIdAsync(therapistID, null);
             if (result.returnCode == 0)
             {
                 return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage, sessions = result.sessions };
@@ -80,7 +81,7 @@ namespace BusinessLogic.Services
             }
 
         }
-        public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdFilteredByStatusAsync(int therapistID,string? status)
+        public async Task<GetSessionsByRoleID> GetSessionsByTherapistIdFilteredByStatusAsync(int therapistID, string? status)
         {
             GetSessionsByRoleID result = await _SessionRepository.GetSessionsByTherapistIdAsync(therapistID, status);
             if (result.returnCode == 0)
@@ -120,14 +121,10 @@ namespace BusinessLogic.Services
                 return new GetSessionsByRoleID { returnCode = result.returnCode, returnMessage = result.returnMessage };
             }
         }
+        public async Task<ServiceResult<bool>> ChangeIndividualSessionStatusAsync(int sessionId, string status)
+        {
+            return await _SessionRepository.ChangeIndividualSessionStatusAsync(sessionId, status);
 
-
-
-
-
-
-
-
-
+        }
     }
 }

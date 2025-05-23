@@ -61,11 +61,46 @@ namespace DataAccess.Repositories
 
         }
 
-        public Task<bool> ChangeGroupSessionStatusAsync(int sessionId, string status)
+        public async Task<ServiceResult<bool>> ChangeGroupSessionStatusAsync(int sessionId, string status)
         {
-            throw new NotImplementedException();
+            using (SqlConnection sqlConnection = new SqlConnection(Connection.ConnectionString))
+            {
+                using (SqlCommand sqlCommand = new SqlCommand("usp_UpdateGroupSessionStatus", sqlConnection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@GroupSessionID", sessionId);
+                    sqlCommand.Parameters.AddWithValue("@NewStatus", status);
+                    try
+                    {
+                        await sqlConnection.OpenAsync();
+                        await sqlCommand.ExecuteNonQueryAsync(); // We don't need to check rowsAffected here directly for success
+                                                                 // as the SP handles the success/failure logic via RAISERROR
+                        return ServiceResult<bool>.Success(true); // If no exception is thrown, it means the SP completed successfully.
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Check for your custom error states from the stored procedure
+                        switch (ex.State)
+                        {
+                            case 1: // Invalid GroupSessionID
+                            case 2: // Session not found
+                            case 3: // Invalid status provided
+                            case 4:
+                            case 5:// Status is already the same, no change needed
+                                return ServiceResult<bool>.Failure(ex.Message, ex.State);
+                            default:
+                                // General database error not specifically handled by custom states
+                                return ServiceResult<bool>.Failure($"Database error: {ex.Message}", -99);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Catch any other unexpected errors
+                        return ServiceResult<bool>.Failure($"An unexpected error occurred: {ex.Message}", -100);
+                    }
+                }
+            }
         }
-
         public async Task<ServiceResult<GroupSession>> GetGroupSessionByIdAsync(int sessionId, string? status = null)
         {
             GroupSession? groupSession = null;
@@ -145,7 +180,7 @@ namespace DataAccess.Repositories
             }
         }
 
-       
+
         public async Task<ServiceResult<List<GroupSession>>> GetGroupSessionsByPatientIdAsync(int patientId, string? status = null)
         {
             List<GroupSession> groupSessions = new List<GroupSession>();
@@ -198,7 +233,7 @@ namespace DataAccess.Repositories
                     catch (SqlException ex)
                     {
                         Console.WriteLine($"SQL Error in GetGroupSessionsByPatientIdAsync: {ex.Message} (Error Number: {ex.Number}, State: {ex.State})");
-                        if (ex.State ==  1 || ex.State == 2 || ex.State == 3 || ex.State == 4) // Check if these are the states from RAISERROR
+                        if (ex.State == 1 || ex.State == 2 || ex.State == 3 || ex.State == 4) // Check if these are the states from RAISERROR
                         {
                             return ServiceResult<List<GroupSession>>.Failure(ex.Message, ex.State);
                         }
@@ -249,7 +284,8 @@ namespace DataAccess.Repositories
                         }
 
 
-                    }catch(SqlException ex)
+                    }
+                    catch (SqlException ex)
                     {
                         Console.WriteLine($"SQL Error in GetGroupSessionsByTherapistIdAsync: {ex.Message} (Error Number: {ex.Number}, State: {ex.State})");
                         if (ex.State == 1 || ex.State == 2 || ex.State == 3 || ex.State == 4) // Check if these are the states from RAISERROR
@@ -269,9 +305,9 @@ namespace DataAccess.Repositories
             }
         }
 
-        public async Task<int> JoinGroupSessionAsync(int patientId,int sessionId)
+        public async Task<int> JoinGroupSessionAsync(int patientId, int sessionId)
         {
-           using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(Connection.ConnectionString))
             {
                 using (SqlCommand command = new SqlCommand("usp_JoinGroupSession", connection))
                 {

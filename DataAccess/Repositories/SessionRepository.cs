@@ -75,6 +75,48 @@ namespace DataAccess.Repositories
             }
             return (newSessionId, spReturnCode, errorMessage);
         }
+
+        public async Task<ServiceResult<bool>> ChangeIndividualSessionStatusAsync(int sessionId, string status)
+        {
+            using (SqlConnection sqlConnection = new SqlConnection(Connection.ConnectionString))
+            {
+                using (SqlCommand sqlCommand = new SqlCommand("usp_UpdateIndividualSessionStatus", sqlConnection))
+                {
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@SessionID", sessionId);
+                    sqlCommand.Parameters.AddWithValue("@NewStatus", status);
+                    try
+                    {
+                        await sqlConnection.OpenAsync();
+                        await sqlCommand.ExecuteNonQueryAsync(); // We don't need to check rowsAffected here directly for success
+                                                                 // as the SP handles the success/failure logic via RAISERROR
+                        return ServiceResult<bool>.Success(true); // If no exception is thrown, it means the SP completed successfully.
+                    }
+                    catch (SqlException ex)
+                    {
+                        // Check for your custom error states from the stored procedure
+                        switch (ex.State)
+                        {
+                            case 1: // Invalid GroupSessionID
+                            case 2: // Session not found
+                            case 3: // Invalid status provided
+                            case 4:// Status is already the same, no change needed
+                            case 5:// The status did not change
+                                return ServiceResult<bool>.Failure(ex.Message, ex.State);
+                            default:
+                                // General database error not specifically handled by custom states
+                                return ServiceResult<bool>.Failure($"Database error: {ex.Message}", -99);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Catch any other unexpected errors
+                        return ServiceResult<bool>.Failure($"An unexpected error occurred: {ex.Message}", -100);
+                    }
+                }
+            }
+        }
+
         public async Task<GetSessionsByRoleID> GetSessionsByPatientIdAsync(int patientId, string? status)
         {
             var sessions = new List<SessionDataModel>();

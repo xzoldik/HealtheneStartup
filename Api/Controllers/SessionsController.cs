@@ -122,7 +122,6 @@ namespace Api.Controllers
         }
 
         [HttpGet("therapist/{therapistID}/{status}")]
-
         public async Task<ActionResult<GetSessionsByRoleID>> GetSessionsByTherapistIdFilteredByStatusAsync(int therapistID, string status)
         {
             if (therapistID <= 0)
@@ -148,7 +147,39 @@ namespace Api.Controllers
                 return NotFound(new { message = result.returnMessage });
             }
         }
-
+        [HttpPut("{sessionId}")]
+        public async Task<ActionResult<ServiceResult<bool>>> ChangeSessionStatusAsync(int sessionId, [FromQuery]string status)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _sessionService.ChangeIndividualSessionStatusAsync(sessionId, status);
+            if (result.IsSuccess)
+            {
+                return StatusCode(201, new { message = "Session status updated successfully." });
+            }
+            else
+            {
+                switch (result.ErrorCode)
+                {
+                    case 1:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 2:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 3:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 4:
+                        return Ok(new { message = result.ErrorMessage });
+                    case 5:
+                        return StatusCode(500, new { message = result.ErrorMessage }); // Message will be "The session status is already set to the new value, or no changes were required."
+                    case 99:
+                        return StatusCode(500, new { message = $"An unexpected error occurred: {result.ErrorMessage}", ErrorCode = result.ErrorCode });
+                    default:
+                        return StatusCode(500, new { message = $"An unexpected error occurred: {result.ErrorMessage}", ErrorCode = result.ErrorCode });
+                }
+            }
+        }
         [HttpPost("book-group")]
         public async Task<ActionResult<BookSessionResultDTO>> BookGroupSessionAsync(BookGroupSessionDto sessionRequest)
         {
@@ -326,6 +357,47 @@ namespace Api.Controllers
                         return NotFound(new { message = result.ErrorMessage });
                     case 4:
                         return NotFound(new { message = result.ErrorMessage });
+                    case 99:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+                    default:
+                        return StatusCode(500, new
+                        {
+                            message = $"An unexpected error occurred: {result.ErrorMessage}",
+                            ErrorCode = result.ErrorCode
+                        });
+                }
+            }
+        }
+        [HttpPut("group/{sessionId}")]
+        public async Task<ActionResult<ServiceResult<bool>>> ChangeGroupSessionStatusAsync(int sessionId, string status)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _groupSessionService.ChangeGroupSessionStatusAsync(sessionId, status);
+            if (result.IsSuccess)
+            {
+                return StatusCode(201, new { message = "Group session status updated successfully." });
+            }
+            else
+            {
+                switch (result.ErrorCode)
+                {
+                    case 1:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 2:
+                        return NotFound(new { message = result.ErrorMessage });
+                    case 3:
+                        return BadRequest(new { message = result.ErrorMessage });
+                    case 4:
+                        return Ok(new { message = result.ErrorMessage });
+                    case 5:
+                        return StatusCode(500,new { message = result.ErrorMessage }); // Message will be "The group session status is already set to the new value, or no changes were required."
                     case 99:
                         return StatusCode(500, new
                         {

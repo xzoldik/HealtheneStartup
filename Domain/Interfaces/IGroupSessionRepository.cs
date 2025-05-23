@@ -18,7 +18,7 @@ namespace DataAccess.Repositories
         public Task<ServiceResult<GroupSession>> GetGroupSessionByIdAsync(int sessionId, string? status = null);
         public Task<ServiceResult<List<GroupSession>>> GetGroupSessionsByTherapistIdAsync(int therapistId, string? status = null);
         public Task<ServiceResult<List<GroupSession>>> GetGroupSessionsByPatientIdAsync(int patientId, string? status = null);
-        public Task<bool> ChangeGroupSessionStatusAsync(int sessionId, string status);
+        public Task<ServiceResult<bool>> ChangeGroupSessionStatusAsync(int sessionId, string status);
     }
 
 
