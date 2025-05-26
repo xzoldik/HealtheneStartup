@@ -3,9 +3,7 @@ using Domain.Dtos.GroupSessionDtos;
 using Domain.Dtos.SessionDtos;
 using Domain.Globals;
 using Domain.Models;
-using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.Eventing.Reader;
 
 namespace Api.Controllers
 {
@@ -172,7 +170,7 @@ namespace Api.Controllers
                     case 4:
                         return Ok(new { message = result.ErrorMessage });
                     case 5:
-                        return StatusCode(500, new { message = result.ErrorMessage }); // Message will be "The session status is already set to the new value, or no changes were required."
+                        return StatusCode(500, new { message = result.ErrorMessage }); 
                     case 99:
                         return StatusCode(500, new { message = $"An unexpected error occurred: {result.ErrorMessage}", ErrorCode = result.ErrorCode });
                     default:

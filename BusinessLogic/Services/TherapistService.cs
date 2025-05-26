@@ -11,11 +11,12 @@ namespace BusinessLogic.Services
 {
     public class TherapistService
     {
-        private readonly ITherapist _therapistRepo;
-        public TherapistService(ITherapist therapistRepo)
+        private readonly ITherapistRepository _therapistRepo;
+        public TherapistService(ITherapistRepository therapistRepo)
         {
             _therapistRepo = therapistRepo;
         }
+
         public async Task<bool> AddAdditionalInformationTherapist(AdditionalInformationTherapistDto request)
         {
             if (request == null)

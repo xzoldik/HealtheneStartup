@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IAuthRepo
+    public interface IAuthRepository
     {
         Task<int> RegisterUserAsync(RegisterApplicationUserDTO user);
         Task<ApplicationUserDto> FindUserWithEmailAsync(string email);
         Task<ApplicationUserDto> FindUserWithPhoneAsync(string phoneNumber);
         Task<ApplicationUserDto> FindUserWithUsernameAsync(string username);
-        Task<ApplicationUserDto> FindUserWithIDAsync(string ID);
+        Task<ApplicationUserDto?> FindUserWithIDAsync(int ID);
         Task<int> LoginUserWithUsernameOrEmailAsync(LoginWithEmailOrUsernameDTO request);
         Task<int> LoginUserWithPhoneNumberAsync(LoginWithPhoneNumberDTO request);
         Task<bool> CheckUserExistAsync(int userID);

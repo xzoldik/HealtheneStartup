@@ -158,7 +158,6 @@ namespace DataAccess.Repositories
                                 Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
                                 Status = reader.GetString(reader.GetOrdinal("Status")),
                                 ActualStartTime = reader.IsDBNull(reader.GetOrdinal("ActualStartTime")) ? null : reader.GetDateTime(reader.GetOrdinal("ActualStartTime")),
-                                FeedbackID = reader.IsDBNull(reader.GetOrdinal("FeedbackID")) ? null : reader.GetInt32(reader.GetOrdinal("FeedbackID")),
                                 Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
                             });
                         }
@@ -265,7 +264,6 @@ namespace DataAccess.Repositories
                                 Duration = reader.GetInt32(reader.GetOrdinal("Duration")),
                                 Status = reader.GetString(reader.GetOrdinal("Status")),
                                 ActualStartTime = reader.IsDBNull(reader.GetOrdinal("ActualStartTime")) ? null : reader.GetDateTime(reader.GetOrdinal("ActualStartTime")),
-                                FeedbackID = reader.IsDBNull(reader.GetOrdinal("FeedbackID")) ? null : reader.GetInt32(reader.GetOrdinal("FeedbackID")),
                                 Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? null : reader.GetString(reader.GetOrdinal("Description"))
                             });
                         }

@@ -11,8 +11,8 @@ namespace BusinessLogic.Services
 {
     public class QuestionnaireService
     {
-        private readonly IQuestionnaireRepo _questionnaireRepo;
-        public QuestionnaireService(IQuestionnaireRepo questionnaireRepo)
+        private readonly IQuestionnaireRepository _questionnaireRepo;
+        public QuestionnaireService(IQuestionnaireRepository questionnaireRepo)
         {
             _questionnaireRepo = questionnaireRepo;
         }

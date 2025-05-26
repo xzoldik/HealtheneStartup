@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IQuestionnaireRepo
+    public interface IQuestionnaireRepository
     {
         Task<List<Questionnaire>> GetAllQuestionnairesAsync();
         Task<Questionnaire?> GetQuestionnaireByIdAsync(int id);

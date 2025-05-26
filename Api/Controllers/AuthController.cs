@@ -2,6 +2,7 @@
 using Domain.Dtos.AuthDtos;
 using Domain.Interfaces;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,14 +32,51 @@ namespace Healthene.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userID = await _authService.RegisterUserAsync(user);
-            if (userID != -1) // If rows were inserted
+            try
             {
-                return Ok(userID);
+                var loginResponse = await _authService.RegisterUserWithTokenAsync(user);
+                return Ok(new
+                {
+                    Message = "User registered successfully",
+                    Token = loginResponse.Token,
+                    User = loginResponse.User,
+                    ExpiresAt = loginResponse.ExpiresAt
+                });
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Registration failed");
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpPost("register-basic")]
+        public async Task<IActionResult> RegisterUserBasic([FromBody] RegisterApplicationUserDTO user)
+        {
+            if (user == null)
+            {
+                return BadRequest("User data is required.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var userID = await _authService.RegisterUserAsync(user);
+                if (userID != -1)
+                {
+                    return Ok(new { UserId = userID, Message = "User registered successfully. Please login to get your token." });
+                }
+                else
+                {
+                    return BadRequest("Registration failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
             }
         }
 
@@ -53,14 +91,22 @@ namespace Healthene.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var userID = await _authService.LoginUserWithUsernameOrEmailAsync(user);
-            if (userID != -1) // If rows were inserted
+
+            try
             {
-                return Ok(userID);
+                var loginResponse = await _authService.LoginUserWithUsernameOrEmailAsync(user);
+                if (loginResponse != null)
+                {
+                    return Ok(loginResponse);
+                }
+                else
+                {
+                    return Unauthorized(new { message = "Invalid credentials" });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Login failed");
+                return Unauthorized(new { message = "Login failed", details = ex.Message });
             }
         }
 
@@ -75,24 +121,35 @@ namespace Healthene.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var userID = await _authService.LoginUserWithPhoneNumberAsync(user);
-            if (userID != -1) // If rows were inserted
+
+            try
             {
-                return Ok(userID);
+                var loginResponse = await _authService.LoginUserWithPhoneNumberAsync(user);
+                if (loginResponse != null)
+                {
+                    return Ok(loginResponse);
+                }
+                else
+                {
+                    return Unauthorized(new { message = "Invalid phone or password." });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Unauthorized(new { message = "Invalid phone or password." });
+                return Unauthorized(new { message = "Login failed", details = ex.Message });
             }
         }
+
         [HttpGet("user/{ID}")]
-        public async Task<ActionResult<ApplicationUserDto>> FindUserWithIDAsync(string ID)
+        [Authorize] // Protect this endpoint with JWT
+        public async Task<ActionResult<ApplicationUserDto?>> FindUserWithIDAsync(int ID)
         {
-            if (string.IsNullOrEmpty(ID))
+            if (ID == 0)
             {
                 return BadRequest("User ID is required.");
             }
-            ApplicationUserDto user = await _authService.FindUserWithIDAsync(ID);
+
+            ApplicationUserDto? user = await _authService.FindUserWithIDAsync(ID);
             if (user != null)
             {
                 return Ok(user);
@@ -101,7 +158,27 @@ namespace Healthene.Controllers
             {
                 return NotFound(new { message = $"User {ID} not found" });
             }
+        }
 
+        [HttpGet("me")]
+        [Authorize] // Get current user info from JWT token
+        public async Task<ActionResult<ApplicationUserDto?>> GetCurrentUser()
+        {
+            int userId = Convert.ToInt32(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+            if (userId == 0)
+            {
+                return Unauthorized();
+            }
+
+            ApplicationUserDto? user = await _authService.FindUserWithIDAsync(userId);
+            if (user != null)
+            {
+                return Ok(user);
+            }
+            else
+            {
+                return NotFound(new { message = "User not found" });
+            }
         }
     }
 }

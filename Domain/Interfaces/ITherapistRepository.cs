@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface ITherapist
+    public interface ITherapistRepository
     {
 
         public Task<bool> AddAddAdditionalInformationTherapist(AdditionalInformationTherapistDto request);

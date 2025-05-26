@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    public class TherapistRepository : ITherapist
+    public class TherapistRepository : ITherapistRepository
     {
         public async Task<bool> AddAddAdditionalInformationTherapist(AdditionalInformationTherapistDto request)
         {

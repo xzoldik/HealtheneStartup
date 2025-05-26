@@ -14,7 +14,7 @@ using Domain.Dtos.MatchingSystemDtos;
 
 namespace DataAccess.Repositories
 {
-    public class QuestionnaireRepository : IQuestionnaireRepo
+    public class QuestionnaireRepository : IQuestionnaireRepository
     {
         public Task<Questionnaire> CreateQuestionnaireAsync(Questionnaire questionnaire)
         {

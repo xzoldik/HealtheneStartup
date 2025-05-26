@@ -55,10 +55,6 @@ namespace DataAccess.Repositories
             }
             return (sessionId, returnCode, errorMessage);
 
-
-
-
-
         }
 
         public async Task<ServiceResult<bool>> ChangeGroupSessionStatusAsync(int sessionId, string status)

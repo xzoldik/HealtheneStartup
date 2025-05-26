@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Repositories
 {
-    public class AuthRepository : IAuthRepo
+    public class AuthRepository : IAuthRepository
     {
         public Task<bool> CheckUserExistAsync(int userID)
         {
@@ -24,7 +24,7 @@ namespace DataAccess.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<ApplicationUserDto> FindUserWithIDAsync(string UserID) 
+        public async Task<ApplicationUserDto?> FindUserWithIDAsync(int UserID) 
         {
             using SqlConnection connection = new SqlConnection(Connection.ConnectionString);
             using SqlCommand command = new SqlCommand("usp_FindUserWithID", connection);
