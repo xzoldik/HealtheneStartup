@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+
 public class PaymentRepository : IPaymentRepository
 {
     private readonly IHttpClientFactory _httpClientFactory;
@@ -46,20 +47,19 @@ public class PaymentRepository : IPaymentRepository
             command.Parameters.AddWithValue("@Amount", request.Amount);
             command.Parameters.AddWithValue("@Currency", request.Currency);
             command.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
-            command.Parameters.AddWithValue("@SessionID", request.SessionID); 
-            command.Parameters.AddWithValue("@PatientID", request.PatientID); // Assuming you want to store this too
-            // Execute the command and get the new ID
+            command.Parameters.AddWithValue("@SessionID", request.SessionID);
+            command.Parameters.AddWithValue("@PatientID", request.PatientID);
+
             var result = await command.ExecuteScalarAsync();
             newPaymentId = Convert.ToInt32(result);
         }
 
-        // 2. Prepare the data to send to Chargily.
-        // NO success_url or failure_url. Webhook is now mandatory.
+        // 2. Prepare the data to send to Chargily
         var payload = new
         {
             amount = (int)request.Amount,
             currency = request.Currency,
-            success_url = _settings.success_url, // ADD THIS LINE
+            success_url = _settings.success_url,
             webhook_endpoint = _settings.WebhookUrl,
             metadata = new { localPaymentId = newPaymentId }
         };
@@ -71,7 +71,6 @@ public class PaymentRepository : IPaymentRepository
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Chargily API call failed: {Error}", await response.Content.ReadAsStringAsync());
-            // In a real app, you might want to update the DB record to "Failed" here.
             return null;
         }
 
@@ -122,64 +121,143 @@ public class PaymentRepository : IPaymentRepository
     // Method to process incoming webhooks from Chargily
     public async Task ProcessWebhookAsync(string jsonPayload, string signatureHeader)
     {
+        _logger.LogInformation("Received webhook payload: {Payload}", jsonPayload);
+        _logger.LogInformation("Received signature header: {Signature}", signatureHeader);
+
         // 1. Verify the signature (CRITICAL for security)
         if (!IsSignatureValid(jsonPayload, signatureHeader))
         {
-            _logger.LogWarning("Invalid webhook signature received.");
+            _logger.LogWarning("Invalid webhook signature received. Expected signature validation failed.");
             return; // Stop processing
         }
 
         _logger.LogInformation("Webhook signature validated successfully.");
 
-        // 2. Parse the webhook data
-        var webhookData = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
-        var eventType = webhookData.TryGetProperty("type", out var typeElem) ? typeElem.GetString() : null;
-        var dataObject = webhookData.GetProperty("data");
-        var metadata = dataObject.GetProperty("metadata");
-        int paymentId = metadata.GetProperty("localPaymentId").GetInt32();
-
-        string newStatus = "Updated via Webhook";
-
-        if (eventType == "checkout.paid")
+        try
         {
-            newStatus = "Paid";
-            _logger.LogInformation("Payment ID {PaymentId} was paid.", paymentId);
+            // 2. Parse the webhook data
+            var webhookData = JsonSerializer.Deserialize<JsonElement>(jsonPayload);
+
+            // Log the entire webhook structure for debugging
+            _logger.LogInformation("Webhook data structure: {WebhookData}", webhookData.ToString());
+
+            var eventType = webhookData.TryGetProperty("type", out var typeElem) ? typeElem.GetString() : null;
+            _logger.LogInformation("Event type: {EventType}", eventType);
+
+            if (!webhookData.TryGetProperty("data", out var dataObject))
+            {
+                _logger.LogWarning("Webhook data does not contain 'data' property");
+                return;
+            }
+
+            if (!dataObject.TryGetProperty("metadata", out var metadata))
+            {
+                _logger.LogWarning("Webhook data does not contain 'metadata' property");
+                return;
+            }
+
+            if (!metadata.TryGetProperty("localPaymentId", out var paymentIdElem))
+            {
+                _logger.LogWarning("Webhook metadata does not contain 'localPaymentId' property");
+                return;
+            }
+
+            int paymentId = paymentIdElem.GetInt32();
+            _logger.LogInformation("Processing webhook for payment ID: {PaymentId}", paymentId);
+
+            string newStatus = "Updated via Webhook";
+
+            // Handle different event types
+            switch (eventType)
+            {
+                case "checkout.paid":
+                    newStatus = "Paid";
+                    _logger.LogInformation("Payment ID {PaymentId} was paid.", paymentId);
+                    break;
+
+                case "checkout.failed":
+                    newStatus = "Failed";
+                    _logger.LogWarning("Payment ID {PaymentId} failed.", paymentId);
+                    break;
+
+                case "checkout.expired":
+                    newStatus = "Expired";
+                    _logger.LogInformation("Payment ID {PaymentId} expired.", paymentId);
+                    break;
+
+                case "checkout.cancelled":
+                    newStatus = "Cancelled";
+                    _logger.LogInformation("Payment ID {PaymentId} was cancelled.", paymentId);
+                    break;
+
+                default:
+                    _logger.LogInformation("Unhandled event type: {EventType} for payment ID {PaymentId}", eventType, paymentId);
+                    newStatus = $"Event: {eventType}";
+                    break;
+            }
+
+            // 3. Update the database record with the new status
+            string updateSql = "UPDATE Payments SET Status = @Status WHERE PaymentId = @PaymentId";
+
+            using (var connection = new SqlConnection(Connection.ConnectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SqlCommand(updateSql, connection);
+                command.Parameters.AddWithValue("@Status", newStatus);
+                command.Parameters.AddWithValue("@PaymentId", paymentId);
+
+                int rowsAffected = await command.ExecuteNonQueryAsync();
+                _logger.LogInformation("Updated {RowsAffected} payment record(s) with status {Status} for payment ID {PaymentId}",
+                    rowsAffected, newStatus, paymentId);
+            }
         }
-        else if (eventType == "checkout.failed")
+        catch (Exception ex)
         {
-            newStatus = "Failed";
-            _logger.LogWarning("Payment ID {PaymentId} failed.", paymentId);
-        }
-
-        // 3. Update the database record with the new status
-        string updateSql = "UPDATE Payments SET Status = @Status WHERE PaymentId = @PaymentId AND Status = 'Pending'";
-        using (var connection = new SqlConnection(Connection.ConnectionString))
-        {
-            await connection.OpenAsync();
-            var command = new SqlCommand(updateSql, connection);
-            command.Parameters.AddWithValue("@Status", newStatus);
-            command.Parameters.AddWithValue("@PaymentId", paymentId);
-            await command.ExecuteNonQueryAsync();
+            _logger.LogError(ex, "Error processing webhook payload: {Payload}", jsonPayload);
+            throw; // Re-throw to return 500 status to Chargily
         }
     }
 
     private bool IsSignatureValid(string payload, string signatureHeader)
     {
-        if (string.IsNullOrEmpty(_settings.WebhookSecret))
+        if (string.IsNullOrEmpty(_settings.ApiSecret))
         {
-            _logger.LogWarning("Webhook secret is not configured. Cannot verify signature.");
-            return false; // Or true if you want to allow it in dev, but be careful.
+            _logger.LogWarning("API secret is not configured. Skipping signature validation.");
+            return true; // Allow in development, but log warning
         }
 
-        // This is an example. Refer to Chargily's documentation for the exact algorithm.
-        var encoding = new UTF8Encoding();
-        byte[] keyByte = encoding.GetBytes(_settings.WebhookSecret);
-        byte[] messageBytes = encoding.GetBytes(payload);
-        using (var hmac = new HMACSHA256(keyByte))
+        try
         {
-            byte[] hash = hmac.ComputeHash(messageBytes);
-            string computedSignature = BitConverter.ToString(hash).Replace("-", "").ToLower();
-            return computedSignature.Equals(signatureHeader, StringComparison.OrdinalIgnoreCase);
+            // Chargily uses the API secret key to sign the webhook payload
+            var encoding = new UTF8Encoding();
+            byte[] keyBytes = encoding.GetBytes(_settings.ApiSecret);
+            byte[] messageBytes = encoding.GetBytes(payload);
+
+            using (var hmac = new HMACSHA256(keyBytes))
+            {
+                byte[] hash = hmac.ComputeHash(messageBytes);
+                string computedSignature = BitConverter.ToString(hash).Replace("-", "").ToLower();
+
+                _logger.LogInformation("Computed signature: {ComputedSignature}", computedSignature);
+                _logger.LogInformation("Received signature: {ReceivedSignature}", signatureHeader.ToLower());
+
+                bool isValid = computedSignature.Equals(signatureHeader.ToLower(), StringComparison.OrdinalIgnoreCase);
+
+                if (!isValid)
+                {
+                    // Try alternative signature format (base64)
+                    string base64Signature = Convert.ToBase64String(hash);
+                    _logger.LogInformation("Trying base64 signature: {Base64Signature}", base64Signature);
+                    isValid = base64Signature.Equals(signatureHeader, StringComparison.OrdinalIgnoreCase);
+                }
+
+                return isValid;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating webhook signature");
+            return false;
         }
     }
 }
